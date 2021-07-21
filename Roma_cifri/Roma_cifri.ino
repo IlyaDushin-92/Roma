@@ -1,37 +1,21 @@
 #include <TimerOne.h>
-#include <Keypad.h>
 
 #define a 26
-#define b 22
-#define c 30
-#define d 34
-#define e 36
-#define f 24
-#define g 28
+#define b 30 // 22
+#define c 24 // 30
+#define d 28 // 32
+#define e 34
+#define f 22 //24
+#define g 32 // 28
 
 #define d1 29
 #define d2 23
 #define d3 25
 #define d4 27
 
-const byte ROWS = 4; // число строк клавиатуры
-const byte COLS = 3; // число столбцов клавиатуры
+int DIN_PLUS = 9;
+int DIN_MUNUS = 7;
 
-char hexaKeys[ROWS][COLS] = {
-      {'1', '2', '3'},
-      {'4', '5', '6'},
-      {'7', '8', '9'},
-      {'*', '0', '#'}
-};
-
-byte rowPins[ROWS] = {8, 7, 6, 5}; // к каким выводам подключаем управление строками
-byte colPins[COLS] = {4, 3, 2}; // к каким выводам подключаем управление столбцами
-
-char pass[4] = {'#', '6', '8', '3'}; // верный пароль
-char buttons[5]; // массив нажатых кнопок
-int k = 0; // счетчик нажатий
-
-Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 long n = 3600;  // время для таймера
 int x = 100;
 int count = 10;
@@ -57,10 +41,14 @@ void setup() {
   Timer1.initialize(100000);
   Timer1.attachInterrupt( add );
   Serial.begin (9600);
+
+  pinMode (DIN_PLUS, OUTPUT);
+  pinMode (DIN_MUNUS, OUTPUT);
+  digitalWrite (DIN_MUNUS, LOW);
 }
 
 void loop() {
-  while (digitalRead(A0) == LOW) {
+  while (true) {
     clearLEDs();
     pickDigit(3); // включаем первую цифру (тысячи)
     pickNumber((n / 1000));
@@ -232,28 +220,17 @@ void nine() {
 
 void add() {
   count --;
-  char customKey = customKeypad.getKey();
-      if (customKey) {
-            buttons[k] = customKey; // сохраняем значение кнопки в массиве
-            k++; // увеличиваем счётчик нажатий на 1
-            
-            if (k == 4) { 
-                  if (buttons[0] == pass[0] && buttons[1] == pass[1] && buttons[2] == pass[2] && buttons[3] == pass[3])
-                  { 
-                     Serial.println ("Все гуд");
-                     k = 0;
-                     count == 0;
-                     n = 0000;
-                  }
-            else {
-                   Serial.println ("неправильный пароль");
-                   k = 0;
-                   
-                 }
-            }
-      }
+  digitalWrite (DIN_PLUS, HIGH);
+  delay (0);
+  digitalWrite (DIN_PLUS, LOW);
+  delay (0);
+  // здесь надо вписать функцию чтения перемычек и выключение таймера
   if (count == 0) {
     count = 9;  n--;
+    digitalWrite (DIN_PLUS, HIGH);
+  delay (10000);
+  digitalWrite (DIN_PLUS, LOW);
+  delay (0);
     if (n == 0) {delay(100000); n = 0000; }
   }
 }
