@@ -1,4 +1,9 @@
 #include <TimerOne.h>
+#include "pitches.h" //добавляем эквивалентные частоты для музыкальных нот
+//#include "themes.h"  //добавляем значения нот и их длительности 
+
+const int SPEAKER=13;
+
 
 #define a 26
 #define b 30 // 22
@@ -16,11 +21,33 @@
 int DIN_PLUS = 9;
 int DIN_MUNUS = 7;
 
-long n = 3600;  // время для таймера
+long n = 5 ;  // время для таймера
 int x = 100;
 int count = 10;
-
-
+///////// мелодия//////////////
+int notes[] = {
+  392, 392, 392, 311, 466, 392, 311, 466, 392,
+  587, 587, 587, 622, 466, 369, 311, 466, 392,
+  784, 392, 392, 784, 739, 698, 659, 622, 659,
+  415, 554, 523, 493, 466, 440, 466,
+  311, 369, 311, 466, 392
+};
+int times[] = {
+  350, 350, 350, 250, 100, 350, 250, 100, 700,
+  350, 350, 350, 250, 100, 350, 250, 100, 700,
+  350, 250, 100, 350, 250, 100, 100, 100, 450,
+  150, 350, 250, 100, 100, 100, 450,
+  150, 350, 250, 100, 750
+};
+void music ()
+{
+  for (int i = 0; i < 39; i++)
+    {
+      tone(SPEAKER, notes[i], times[i]*2);
+      delay(times[i]*2);
+      noTone(SPEAKER); 
+     }
+}
 
 void setup() {
   pinMode(a, OUTPUT);
@@ -68,9 +95,19 @@ void loop() {
     pickDigit(0); // включаем четвертую цифру (единицы)
     pickNumber(n % 10);
     delay(5);
-    
+
+    if (n == 0) 
+      {
+         digitalWrite (g, HIGH);
+         digitalWrite (d1, HIGH);
+         digitalWrite (d2, HIGH);
+         digitalWrite (d3, HIGH);
+         digitalWrite (d4, HIGH);
+        
+         music ();
+      }
   }
-  if (digitalRead(A0) == HIGH) { n = 0; count = 0; }
+  
 }
 
 // определение разряда
@@ -220,17 +257,17 @@ void nine() {
 
 void add() {
   count --;
-  digitalWrite (DIN_PLUS, HIGH);
-  delay (0);
-  digitalWrite (DIN_PLUS, LOW);
-  delay (0);
+  
   // здесь надо вписать функцию чтения перемычек и выключение таймера
   if (count == 0) {
     count = 9;  n--;
     digitalWrite (DIN_PLUS, HIGH);
-  delay (10000);
-  digitalWrite (DIN_PLUS, LOW);
-  delay (0);
-    if (n == 0) {delay(100000); n = 0000; }
+    delay (10000);
+    digitalWrite (DIN_PLUS, LOW);
+    delay (0);
+     if (n == 0) 
+      {
+        Timer1.stop();
+      } 
   }
 }
